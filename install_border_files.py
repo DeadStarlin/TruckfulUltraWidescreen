@@ -3,6 +3,7 @@ import hashlib
 import json
 import shutil
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 MOD = Path(__file__).resolve().parent
@@ -42,6 +43,13 @@ for entry in entries:
         f"Game file changed since preparation: {target}; refusing to overwrite."
 
 if not restore:
+    if any((BACKUP / entry["path"]).exists()
+           and digest(BACKUP / entry["path"]) != entry["original_sha256"] for entry in entries):
+        archive = (MOD / "backup-archives" / f"{kind}-{datetime.now(timezone.utc):%Y%m%dT%H%M%S%fZ}").resolve()
+        assert BACKUP.resolve().is_relative_to(MOD) and archive.is_relative_to(MOD)
+        archive.parent.mkdir(parents=True, exist_ok=True)
+        BACKUP.rename(archive)
+        print(f"Preserved previous-build backups in {archive}", flush=True)
     for entry in entries:
         original = ROOT / entry["path"]
         backup = BACKUP / entry["path"]

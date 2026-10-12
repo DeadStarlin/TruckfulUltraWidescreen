@@ -9,6 +9,7 @@ MOD = Path(__file__).resolve().parent
 ROOT = MOD.parent
 import UnityPy
 from resolution import ASPECT
+from aspect_limit import find_aspect_offset
 
 STAGE = MOD / "border-files"
 STAGE.mkdir(exist_ok=True)
@@ -33,19 +34,8 @@ def stage(relative, original, changes):
 
 
 binary = (ROOT / "GameAssembly.dll").read_bytes()
-pe = struct.unpack_from("<I", binary, 60)[0]
-assert binary[pe:pe + 4] == b"PE\0\0"
-sections = struct.unpack_from("<H", binary, pe + 6)[0]
-optional_size = struct.unpack_from("<H", binary, pe + 20)[0]
-aspect_rva = 0x2665F10  # This build's constant is referenced only by LetterboxFrame.Refresh.
-for index in range(sections):
-    header = pe + 24 + optional_size + 40 * index
-    size, address, raw_size, raw_address = struct.unpack_from("<IIII", binary, header + 8)
-    if address <= aspect_rva < address + min(size, raw_size):
-        aspect_offset = raw_address + aspect_rva - address
-        break
-else:
-    raise RuntimeError("Aspect constant is outside the expected PE sections.")
+aspect_offset = find_aspect_offset(binary)
+print(f"Located camera aspect limit at file offset 0x{aspect_offset:X}.", flush=True)
 assert math.isclose(struct.unpack_from("<f", binary, aspect_offset)[0], 16 / 9, rel_tol=1e-7), \
     "Unexpected game build or an existing aspect patch; refusing to edit."
 stage("GameAssembly.dll", binary, {aspect_offset: struct.pack("<f", ASPECT)})

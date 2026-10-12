@@ -1,6 +1,6 @@
 # TruckfulUltraWidescreen
 
-Version **0.2 — borders removed and HUD at screen edges**. A reversible game-file patch for ultrawide Truckful gameplay. The default target is 3440×1440.
+Version **0.2.1 — borders removed and HUD at screen edges**. A reversible game-file patch for ultrawide Truckful gameplay. The default target is 3440×1440.
 
 The patch expands the camera's maximum aspect ratio, disables separate side-panel images, and expands the gameplay HUD's shared layout. Existing anchors move the journal, speedometer, and other HUD elements toward the screen edges with their original sizes and margins. BepInEx is not required for these file edits.
 
@@ -10,12 +10,15 @@ The patch expands the camera's maximum aspect ratio, disables separate side-pane
 | --- | --- |
 | Game | Truckful, Windows 64-bit |
 | Steam App ID | 3090810 |
-| Steam build ID | 25850103 |
+| Original visually tested Steam build | 25850103 |
+| Game 1.0.3 Steam build | 25890338 |
 | Unity engine | 6000.3.25f1 (e1dba0a9aba4) |
 | Display | 3440×1440 |
 | Verified | 12 October 2026 |
 
-The Steam build ID identifies the tested game build; the Unity version identifies its engine. Other game builds are not verified. The camera constant's RVA (`0x2665F10`) is specific to this build.
+The Steam build ID identifies the game build; the Unity version identifies its engine. Version 0.2.1 locates the camera constant through its native code reference instead of using a fixed RVA. It verifies a unique reference and the companion minimum-aspect value before allowing a patch. The original build used RVA `0x2665F10`; game 1.0.3 moved it to `0x2668198`.
+
+After a game update, installation preserves mismatched previous-build backups under `backup-archives` and creates fresh backups from the verified current game files. Prepared files and current game files must pass all hash checks before any backup is moved. Do not restore archived old game files over an updated build. An `Unexpected game build or an existing aspect patch` error after successful detection means the located maximum is already modified; start from original game files.
 
 ## Install
 
