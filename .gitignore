@@ -1,5 +1,7 @@
 /border-files/
 /border-backup/
+/hud-files/
+/hud-backup/
 /tools/
 __pycache__/
 *.pyc

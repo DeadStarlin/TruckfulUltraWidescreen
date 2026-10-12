@@ -8,6 +8,7 @@ from pathlib import Path
 MOD = Path(__file__).resolve().parent
 ROOT = MOD.parent
 import UnityPy
+from resolution import ASPECT
 
 STAGE = MOD / "border-files"
 STAGE.mkdir(exist_ok=True)
@@ -47,7 +48,7 @@ else:
     raise RuntimeError("Aspect constant is outside the expected PE sections.")
 assert math.isclose(struct.unpack_from("<f", binary, aspect_offset)[0], 16 / 9, rel_tol=1e-7), \
     "Unexpected game build or an existing aspect patch; refusing to edit."
-stage("GameAssembly.dll", binary, {aspect_offset: struct.pack("<f", 3440 / 1440)})
+stage("GameAssembly.dll", binary, {aspect_offset: struct.pack("<f", ASPECT)})
 
 total_images = 0
 for path in sorted((ROOT / "Truckful_Data").glob("level*")):

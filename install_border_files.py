@@ -7,10 +7,12 @@ from pathlib import Path
 
 MOD = Path(__file__).resolve().parent
 ROOT = MOD.parent
-STAGE = MOD / "border-files"
-BACKUP = MOD / "border-backup"
-restore = sys.argv[1:] == ["--restore"]
-assert not sys.argv[1:] or restore, "Only --restore is supported."
+arguments = set(sys.argv[1:])
+assert arguments <= {"--restore", "--hud"}, "Supported arguments: --restore, --hud."
+kind = "hud" if "--hud" in arguments else "border"
+STAGE = MOD / f"{kind}-files"
+BACKUP = MOD / f"{kind}-backup"
+restore = "--restore" in arguments
 entries = json.loads((STAGE / "manifest.json").read_text(encoding="utf-8"))
 
 
